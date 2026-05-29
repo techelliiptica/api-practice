@@ -20,18 +20,49 @@ From the repo root:
 
 ```bash
 npm install
-npm run backend
+npm run backend:users
 ```
 
 In a second terminal:
 
 ```bash
+npm run backend:products
 npm run frontend
 ```
 
 - Frontend: `http://localhost:5173`
-- Backend: `http://localhost:4000`
+- Users API: `http://localhost:4000`
 - Products API: `http://localhost:4001`
+
+### Windows / install errors
+
+If `npm install` fails at **postinstall**, pull the latest code (uses `scripts/install-all.js` instead of `&&` chains).
+
+**Manual install** (works on all OS):
+
+```bash
+cd backend && npm install && cd ..
+cd backend-products && npm install && cd ..
+cd frontend && npm install && cd ..
+```
+
+Or from repo root:
+
+```bash
+npm run install:packages
+```
+
+Skip postinstall if needed:
+
+```bash
+set SKIP_POSTINSTALL=1
+npm install
+npm run install:packages
+```
+
+(PowerShell: `$env:SKIP_POSTINSTALL=1`)
+
+**Node.js:** use **v20.19+** or **v22+** (required by Vite). Check with `node -v`.
 
 ## Sample login credentials
 
