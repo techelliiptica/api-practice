@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Reusable helpers (nice for testing selectors + consistent UI) */
+.card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn-primary {
+  @apply btn bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800;
+}
+.btn-secondary {
+  @apply btn border border-slate-200 bg-white text-slate-900 hover:bg-slate-50;
+}
+.btn-danger {
+  @apply btn bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800;
+}
+
+.input {
+  @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200;
+}
+.select {
+  @apply input pr-8;
+}
+.label {
+  @apply text-sm font-medium text-slate-700;
+}
+.help {
+  @apply mt-1 text-xs text-slate-500;
+}
+.error-text {
+  @apply mt-1 text-xs text-rose-600;
+}

@@ -1,0 +1,35 @@
+{
+  "data": {
+    "items": [
+      {
+        "id": "efa1d1a0-2e19-425d-ae11-9ddff1883e07",
+        "name": "Product 1",
+        "sku": "SKU-0001",
+        "price": 51.5,
+        "category": "Security",
+        "status": "Inactive",
+        "createdAt": "2026-05-28T08:50:50.083Z"
+      },
+      {
+        "id": "e904b576-e2cd-42ab-a190-c4f301f5f9b9",
+        "name": "Product 2",
+        "sku": "SKU-0002",
+        "price": 54,
+        "category": "Analytics",
+        "status": "Active",
+        "createdAt": "2026-05-28T08:50:50.083Z"
+      }
+    ],
+    "page": 1,
+    "pageSize": 12,
+    "total": 42,
+    "totalPages": 4,
+    "sortBy": "createdAt",
+    "sortDir": "desc",
+    "q": "",
+    "filters": {
+      "category": "",
+      "status": ""
+    }
+  }
+}

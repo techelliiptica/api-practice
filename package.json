@@ -1,0 +1,15 @@
+{
+  "name": "user-management-practice-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Lightweight full-stack User Management app for UI/API testing practice (Playwright external).",
+  "scripts": {
+    "postinstall": "npm --prefix backend install && npm --prefix backend-products install && npm --prefix frontend install",
+    "backend": "npm --prefix backend run dev",
+    "backend:users": "npm --prefix backend run dev",
+    "backend:products": "npm --prefix backend-products run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix backend-products install && npm --prefix frontend install"
+  }
+}
+

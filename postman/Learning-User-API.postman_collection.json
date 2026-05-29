@@ -1,0 +1,365 @@
+{
+  "info": {
+    "_postman_id": "learning-user-api-collection",
+    "name": "Learning User API",
+    "description": "Postman collection for the Learning User practice app.\n\n**Two APIs:**\n- Users API (port 4000): auth, users, selections, admin toggles\n- Products API (port 4001): products only\n\n**Setup:**\n1. Import `Learning-User-Local.postman_environment.json`\n2. Select environment **Learning User - Local**\n3. Run **Auth → Login** first (saves `token` automatically)\n4. Run other requests\n\n**Credentials:** admin@acme.test / admin123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Collection-level: ensure trace header for debugging",
+          "pm.request.headers.add({ key: 'x-client-trace-id', value: pm.variables.replaceIn('{{$guid}}') });"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "usersApiBase", "value": "http://localhost:4000/api" },
+    { "key": "productsApiBase", "value": "http://localhost:4001/api" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "productId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Users API (4000)",
+      "item": [
+        {
+          "name": "Health",
+          "item": [
+            {
+              "name": "Health Check",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:4000/api/health"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "if (pm.response.code === 200) {",
+                      "  const json = pm.response.json();",
+                      "  const token = json.data?.token;",
+                      "  pm.expect(token).to.be.a('string').and.not.empty;",
+                      "  pm.environment.set('token', token);",
+                      "  pm.collectionVariables.set('token', token);",
+                      "  console.log('Token saved to environment');",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+                },
+                "url": "{{usersApiBase}}/auth/login",
+                "description": "Hardcoded admin login. Saves JWT to `token` variable."
+              },
+              "response": []
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": "{{usersApiBase}}/auth/logout"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "List Users (search, filter, sort, paginate)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const items = pm.response.json().data?.items || [];",
+                      "  if (items.length > 0) {",
+                      "    pm.environment.set('userId', items[0].id);",
+                      "    pm.collectionVariables.set('userId', items[0].id);",
+                      "  }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{usersApiBase}}/users?page=1&pageSize=10&sortBy=createdAt&sortDir=desc&q=&role=&status=",
+                  "host": ["{{usersApiBase}}"],
+                  "path": ["users"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "pageSize", "value": "10" },
+                    { "key": "sortBy", "value": "createdAt", "description": "createdAt|firstName|lastName|email|role|status" },
+                    { "key": "sortDir", "value": "desc", "description": "asc|desc" },
+                    { "key": "q", "value": "", "description": "Search query" },
+                    { "key": "role", "value": "", "description": "Manager|Support|Engineer|QA|Analyst" },
+                    { "key": "status", "value": "", "description": "Active|Inactive" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get User by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{usersApiBase}}/users/{{userId}}"
+              },
+              "response": []
+            },
+            {
+              "name": "Create User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "  const id = pm.response.json().data?.id;",
+                      "  if (id) {",
+                      "    pm.environment.set('userId', id);",
+                      "    pm.collectionVariables.set('userId', id);",
+                      "  }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test.user.{{$timestamp}}@example.test\",\n  \"phone\": \"9876543210\",\n  \"role\": \"QA\",\n  \"status\": \"Active\"\n}"
+                },
+                "url": "{{usersApiBase}}/users"
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"Updated\",\n  \"status\": \"Inactive\"\n}"
+                },
+                "url": "{{usersApiBase}}/users/{{userId}}"
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": "{{usersApiBase}}/users/{{userId}}"
+              },
+              "response": []
+            },
+            {
+              "name": "Bulk Delete Users",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ids\": [\n    \"{{userId}}\"\n  ]\n}"
+                },
+                "url": "{{usersApiBase}}/users/bulk-delete"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Product Selections",
+          "item": [
+            {
+              "name": "Get My Selected Products",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{usersApiBase}}/me/selected-products"
+              },
+              "response": []
+            },
+            {
+              "name": "Save My Selected Products",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"productIds\": [\n    \"{{productId}}\"\n  ]\n}"
+                },
+                "url": "{{usersApiBase}}/me/selected-products"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Admin Toggles",
+          "item": [
+            {
+              "name": "Get Toggles",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{usersApiBase}}/admin/toggles"
+              },
+              "response": []
+            },
+            {
+              "name": "Update Toggles (enable random failures)",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"simulateDelayEnabled\": true,\n  \"delayMsMin\": 200,\n  \"delayMsMax\": 1200,\n  \"randomFailuresEnabled\": true,\n  \"randomFailureRate\": 0.2,\n  \"sessionTimeoutEnabled\": false,\n  \"sessionTimeoutMaxRequests\": 15\n}"
+                },
+                "url": "{{usersApiBase}}/admin/toggles"
+              },
+              "response": []
+            },
+            {
+              "name": "Update Toggles (disable flaky behavior)",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"simulateDelayEnabled\": false,\n  \"randomFailuresEnabled\": false,\n  \"sessionTimeoutEnabled\": false\n}"
+                },
+                "url": "{{usersApiBase}}/admin/toggles"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products API (4001)",
+      "item": [
+        {
+          "name": "Health",
+          "item": [
+            {
+              "name": "Health Check",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:4001/api/health"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "item": [
+            {
+              "name": "List Products (search, filter, sort, paginate)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "  const items = pm.response.json().data?.items || [];",
+                      "  if (items.length > 0) {",
+                      "    pm.environment.set('productId', items[0].id);",
+                      "    pm.collectionVariables.set('productId', items[0].id);",
+                      "  }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{productsApiBase}}/products?page=1&pageSize=12&sortBy=createdAt&sortDir=desc&q=&category=&status=",
+                  "host": ["{{productsApiBase}}"],
+                  "path": ["products"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "pageSize", "value": "12" },
+                    { "key": "sortBy", "value": "createdAt", "description": "createdAt|name|price|category|status|sku" },
+                    { "key": "sortDir", "value": "desc" },
+                    { "key": "q", "value": "" },
+                    { "key": "category", "value": "" },
+                    { "key": "status", "value": "", "description": "Active|Inactive" }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Product by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{productsApiBase}}/products/{{productId}}"
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

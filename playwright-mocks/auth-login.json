@@ -1,0 +1,13 @@
+{
+  "data": {
+    "token": "mock-jwt-token-for-playwright",
+    "tokenType": "Bearer",
+    "expiresIn": "10m",
+    "user": {
+      "id": "admin",
+      "email": "admin@acme.test",
+      "role": "Admin",
+      "name": "Admin User"
+    }
+  }
+}
